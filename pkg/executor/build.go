@@ -272,6 +272,12 @@ func DoBuild(opts *config.KanikoOptions) (v1.Image, error) {
 			return sourceImage, nil
 		}
 		if stage.SaveStage {
+			// If build stage last longer than 5 minutes, anonymous token expires and
+			// saveStageAsTarball step fails with "unauthorized" error
+			sourceImage, err := util.RetrieveSourceImage(stage, opts.BuildArgs)
+			if err != nil {
+				return nil, err
+			}
 			if err := saveStageAsTarball(index, sourceImage); err != nil {
 				return nil, err
 			}
